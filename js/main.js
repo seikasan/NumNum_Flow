@@ -131,7 +131,7 @@ async function init() {
         });
 
         continueBtn.addEventListener('click', () => {
-            gameManager.hideResult();
+            gameManager.retry();
         });
 
         // Show Title Screen initially

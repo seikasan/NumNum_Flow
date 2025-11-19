@@ -71,6 +71,17 @@ export class GameManager {
     }
 
     /**
+     * Retry the current stage without resetting grid
+     */
+    retry() {
+        this.state = GAME_STATE.IDLE;
+        this.simulationResult = null;
+        this.hideResult();
+        this.renderer.drawStatic(); // Clear signals
+        this.updateUI(); // Re-enable buttons
+    }
+
+    /**
      * Update UI button states
      */
     updateUI() {
