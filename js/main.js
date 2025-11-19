@@ -3,35 +3,121 @@ import { Renderer } from './views/Renderer.js';
 import { GameManager } from './controllers/GameManager.js';
 import { InputHandler } from './controllers/InputHandler.js';
 
+let allStages = {};
+let currentStageId = null;
+let gameManager = null;
+let renderer = null;
+let inputHandler = null;
+
+// Screen Management
+const SCREENS = {
+    TITLE: 'title-screen',
+    SELECT: 'stage-select-screen',
+    GAME: 'game-screen'
+};
+
+function showScreen(screenId) {
+    Object.values(SCREENS).forEach(id => {
+        const element = document.getElementById(id);
+        if (id === screenId) {
+            element.classList.remove('hidden');
+        } else {
+            element.classList.add('hidden');
+        }
+    });
+}
+
 // Load stage data
-async function loadStageData(stageId) {
+async function loadStageData() {
     const response = await fetch('./js/data/stages.json');
-    const allStages = await response.json();
-    return allStages[stageId];
+    allStages = await response.json();
+}
+
+// Populate Stage Select Screen
+function initStageSelect() {
+    const grid = document.getElementById('stage-grid');
+    grid.innerHTML = ''; // Clear existing
+
+    Object.keys(allStages).forEach(id => {
+        const stage = allStages[id];
+        const card = document.createElement('div');
+        card.className = 'stage-card';
+        card.innerHTML = `
+            <h3>${stage.name.split(':')[0]}</h3>
+            <p>${stage.name.split(':')[1] || ''}</p>
+        `;
+        card.addEventListener('click', () => {
+            startGame(id);
+        });
+        grid.appendChild(card);
+    });
+}
+
+// Start Game with specific stage
+function startGame(stageId) {
+    if (!allStages[stageId]) return;
+
+    currentStageId = stageId;
+    const stageData = allStages[stageId];
+    const stage = new Stage(stageData);
+
+    if (!gameManager) {
+        // First time initialization
+        const canvas = document.getElementById('game-canvas');
+        renderer = new Renderer(canvas, stage);
+
+        gameManager = new GameManager(stage, renderer, () => {
+            // On Next Stage
+            const stageIds = Object.keys(allStages);
+            const currentIndex = stageIds.indexOf(currentStageId);
+            if (currentIndex < stageIds.length - 1) {
+                startGame(stageIds[currentIndex + 1]);
+            } else {
+                alert('All stages cleared! Congratulations!');
+                showScreen(SCREENS.SELECT);
+            }
+        });
+
+        inputHandler = new InputHandler(
+            canvas,
+            stage.grid,
+            (x, y) => gameManager.onTileClick(x, y)
+        );
+    } else {
+        // Update existing instances
+        renderer.setStage(stage);
+        gameManager.setStage(stage);
+        inputHandler.setGrid(stage.grid);
+    }
+
+    // Initial draw and UI update
+    renderer.drawStatic();
+    gameManager.updateStageInfo();
+
+    showScreen(SCREENS.GAME);
 }
 
 // Initialize game
 async function init() {
     try {
-        // Load first stage
-        const stageData = await loadStageData('stage001');
-        const stage = new Stage(stageData);
+        await loadStageData();
+        initStageSelect();
 
-        // Setup canvas
-        const canvas = document.getElementById('game-canvas');
-        const renderer = new Renderer(canvas, stage);
+        // Event Listeners
+        document.getElementById('start-btn').addEventListener('click', () => {
+            showScreen(SCREENS.SELECT);
+        });
 
-        // Setup game manager
-        const gameManager = new GameManager(stage, renderer);
+        document.getElementById('back-to-title-btn').addEventListener('click', () => {
+            showScreen(SCREENS.TITLE);
+        });
 
-        // Setup input handler
-        const inputHandler = new InputHandler(
-            canvas,
-            stage.grid,
-            (x, y) => gameManager.onTileClick(x, y)
-        );
+        document.getElementById('back-to-select-btn').addEventListener('click', () => {
+            showScreen(SCREENS.SELECT);
+            gameManager.reset(); // Reset game state when leaving
+        });
 
-        // Setup UI buttons
+        // Game Controls
         const runBtn = document.getElementById('run-btn');
         const resetBtn = document.getElementById('reset-btn');
         const continueBtn = document.getElementById('continue-btn');
@@ -45,12 +131,11 @@ async function init() {
         });
 
         continueBtn.addEventListener('click', () => {
-            gameManager.reset();
+            gameManager.hideResult();
         });
 
-        // Initial draw
-        renderer.drawStatic();
-        gameManager.updateStageInfo();
+        // Show Title Screen initially
+        showScreen(SCREENS.TITLE);
 
         console.log('NumNum Flow initialized successfully!');
     } catch (error) {

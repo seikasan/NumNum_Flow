@@ -9,6 +9,14 @@ export class InputHandler {
         this.setupEventListeners();
     }
 
+    /**
+     * Update grid reference
+     * @param {Grid} grid 
+     */
+    setGrid(grid) {
+        this.grid = grid;
+    }
+
     setupEventListeners() {
         this.canvas.addEventListener('click', (event) => {
             const rect = this.canvas.getBoundingClientRect();

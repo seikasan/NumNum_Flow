@@ -2,11 +2,21 @@ import { SimulationEngine } from './SimulationEngine.js';
 import { GAME_STATE } from '../constants.js';
 
 export class GameManager {
-    constructor(stage, renderer) {
+    constructor(stage, renderer, onNextStage) {
         this.stage = stage;
         this.renderer = renderer;
+        this.onNextStage = onNextStage;
         this.state = GAME_STATE.IDLE;
         this.simulationResult = null;
+    }
+
+    /**
+     * Update stage reference
+     * @param {Stage} stage 
+     */
+    setStage(stage) {
+        this.stage = stage;
+        this.reset();
     }
 
     /**
@@ -93,6 +103,18 @@ export class GameManager {
         }
 
         message.textContent = this.simulationResult.reason;
+
+        const nextBtn = document.getElementById('next-stage-btn');
+        if (this.state === GAME_STATE.SUCCESS) {
+            nextBtn.classList.remove('hidden');
+            nextBtn.onclick = () => {
+                this.hideResult();
+                if (this.onNextStage) this.onNextStage();
+            };
+        } else {
+            nextBtn.classList.add('hidden');
+        }
+
         overlay.classList.remove('hidden');
     }
 

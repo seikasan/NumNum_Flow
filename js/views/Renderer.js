@@ -4,13 +4,19 @@ export class Renderer {
     constructor(canvas, stage) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
-        this.stage = stage;
-
-        // Set canvas size
-        this.canvas.width = stage.grid.width * CELL_SIZE;
-        this.canvas.height = stage.grid.height * CELL_SIZE;
+        this.setStage(stage);
 
         this.animationFrameId = null;
+    }
+
+    /**
+     * Update stage reference and resize canvas
+     * @param {Stage} stage 
+     */
+    setStage(stage) {
+        this.stage = stage;
+        this.canvas.width = stage.grid.width * CELL_SIZE;
+        this.canvas.height = stage.grid.height * CELL_SIZE;
     }
 
     /**

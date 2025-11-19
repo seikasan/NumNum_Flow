@@ -8,42 +8,75 @@
 </head>
 <body>
   <div class="game-container">
-    <header class="game-header">
-      <h1>NumNum Flow</h1>
-      <div class="stage-info">
-        <span id="stage-name">Stage 1</span>
+    
+    <!-- Title Screen -->
+    <div id="title-screen" class="screen">
+      <div class="title-content">
+        <h1 class="main-title">NumNum<br>Flow</h1>
+        <p class="subtitle">Logic Puzzle Game</p>
+        <button id="start-btn" class="btn btn-primary btn-large">START GAME</button>
       </div>
-    </header>
+    </div>
 
-    <div class="game-main">
-      <div class="canvas-wrapper">
-        <canvas id="game-canvas"></canvas>
-        <div id="result-overlay" class="result-overlay hidden">
-          <div class="result-content">
-            <h2 id="result-title"></h2>
-            <p id="result-message"></p>
-            <button id="continue-btn" class="btn btn-primary">Continue</button>
+    <!-- Stage Select Screen -->
+    <div id="stage-select-screen" class="screen hidden">
+      <header class="screen-header">
+        <h2>Select Stage</h2>
+        <button id="back-to-title-btn" class="btn btn-secondary btn-small">Back</button>
+      </header>
+      <div id="stage-grid" class="stage-grid">
+        <!-- Stage cards populated by JS -->
+      </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen hidden">
+      <header class="game-header">
+        <div class="header-left">
+          <button id="back-to-select-btn" class="btn btn-secondary btn-small">⬅ Menu</button>
+        </div>
+        <div class="header-center">
+          <span id="stage-name"></span>
+        </div>
+        <div class="header-right">
+          <!-- Placeholder for future use -->
+        </div>
+      </header>
+
+      <div class="game-main">
+        <div class="canvas-wrapper">
+          <canvas id="game-canvas"></canvas>
+          <div id="result-overlay" class="result-overlay hidden">
+            <div class="result-content">
+              <h2 id="result-title"></h2>
+              <p id="result-message"></p>
+              <div class="result-buttons">
+                <button id="continue-btn" class="btn btn-primary">Retry</button>
+                <button id="next-stage-btn" class="btn btn-success hidden">Next Stage ➡</button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="controls">
-        <div class="info-panel">
-          <div class="info-item">
-            <span class="label">INPUT:</span>
-            <span id="input-value">-</span>
+        <div class="controls">
+          <div class="info-panel">
+            <div class="info-item">
+              <span class="label">INPUT:</span>
+              <span id="input-value">-</span>
+            </div>
+            <div class="info-item">
+              <span class="label">TARGET:</span>
+              <span id="target-values">-</span>
+            </div>
           </div>
-          <div class="info-item">
-            <span class="label">TARGET:</span>
-            <span id="target-values">-</span>
+          <div class="button-group">
+            <button id="run-btn" class="btn btn-success">▶ 実行</button>
+            <button id="reset-btn" class="btn btn-secondary">↻ リセット</button>
           </div>
-        </div>
-        <div class="button-group">
-          <button id="run-btn" class="btn btn-success">▶ 実行</button>
-          <button id="reset-btn" class="btn btn-secondary">↻ リセット</button>
         </div>
       </div>
     </div>
+
   </div>
 
   <!-- Module Scripts -->
