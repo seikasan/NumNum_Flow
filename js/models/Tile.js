@@ -1,17 +1,17 @@
-import { SHAPE_CONNECTIONS, OPPOSITE_DIR, TILE_TYPE } from '../constants.js';
+import { TILE_TYPE } from '../constants.js';
 
 export class Tile {
-    constructor(config = {}) {
-        this.type = config.type || TILE_TYPE.PIPE;
-        this.shape = config.shape || 'I';
-        this.operator = config.operator || 'NONE';
-        this.operand = config.operand || 0;
-        this.rotation = config.rotation || 0; // 0, 90, 180, 270
-        this.fixed = config.fixed || false;
+    constructor(data) {
+        this.type = data.type || TILE_TYPE.PIPE;
+        this.shape = data.shape || 'I'; // I, L, T, +
+        this.operator = data.operator || 'NONE';
+        this.operand = data.operand || 0;
+        this.rotation = data.rotation || 0; // 0, 90, 180, 270
+        this.fixed = data.fixed || false;
     }
 
     /**
-     * Rotate tile by 90 degrees clockwise
+     * Rotate the tile 90 degrees clockwise
      */
     rotate() {
         if (this.fixed) return;
@@ -19,104 +19,106 @@ export class Tile {
     }
 
     /**
-     * Get the output directions based on input direction
-     * @param {string} inputDir - Direction signal came from ('N', 'E', 'S', 'W')
-     * @returns {string[]} - Array of output directions
+     * Get output directions based on input direction
+     * @param {string} fromDir - Direction the signal came FROM (N, E, S, W)
+     * @returns {string[]} - Array of output directions (N, E, S, W)
      */
-    getOutputDirections(inputDir) {
-        if (this.type !== TILE_TYPE.PIPE) {
-            return [];
+    getOutputDirections(fromDir) {
+        // Define connections for each shape at 0 rotation (North is Up)
+        // Connections are defined as if looking at the tile.
+        // 'I': North <-> South
+        // 'L': North <-> East
+        // 'T': North <-> East <-> West (South is blocked)
+        // '+': All connected
+
+        const baseConnections = {
+            'I': ['N', 'S'],
+            'L': ['N', 'E'],
+            'T': ['N', 'E', 'W'],
+            '+': ['N', 'E', 'S', 'W']
+        };
+
+        // Normalize rotation to 0-3 index (0=0, 1=90, 2=180, 3=270)
+        const rotIndex = this.rotation / 90;
+        const dirs = ['N', 'E', 'S', 'W'];
+
+        // Get rotated connections
+        const currentConnections = baseConnections[this.shape].map(dir => {
+            const dirIndex = dirs.indexOf(dir);
+            return dirs[(dirIndex + rotIndex) % 4];
+        });
+
+        // Check if we can enter from 'fromDir'
+        // Note: fromDir is the direction the signal is moving, so it enters the tile from the OPPOSITE side.
+        // BUT, the simulation engine passes 'fromDir' as the direction relative to the tile?
+        // Let's check Signal.js usage in SimulationEngine.
+        // SimulationEngine says: "fromDir: どの方向から現在のタイルに入ってきたか" (Which direction it entered FROM)
+        // If I move East from (0,0) to (1,0), I enter (1,0) from 'W'.
+        // So if fromDir is 'W', the tile must have a connection to 'W'.
+
+        if (!currentConnections.includes(fromDir)) {
+            return []; // Cannot enter from this direction
         }
 
-        // Get base connections for this shape
-        const baseConnections = SHAPE_CONNECTIONS[this.shape] || [];
-
-        // Rotate connections based on tile rotation
-        const rotatedConnections = this.rotateDirections(baseConnections, this.rotation);
-
-        // Signal cannot exit from the direction it came from
-        const oppositeInput = OPPOSITE_DIR[inputDir];
-
-        // Filter out the input direction
-        return rotatedConnections.filter(dir => dir !== oppositeInput);
+        // Return all OTHER connections
+        return currentConnections.filter(d => d !== fromDir);
     }
 
     /**
-     * Rotate a set of directions by the given angle
-     * @param {string[]} directions - Array of directions
-     * @param {number} angle - Rotation angle (0, 90, 180, 270)
-     * @returns {string[]} - Rotated directions
+     * Check if tile accepts input from a direction
+     * @param {string} fromDir - Direction entering FROM
      */
-    rotateDirections(directions, angle) {
-        const steps = angle / 90;
-        const rotationMap = ['N', 'E', 'S', 'W'];
+    canAcceptFrom(fromDir) {
+        const dirs = ['N', 'E', 'S', 'W'];
+        const rotIndex = this.rotation / 90;
 
-        return directions.map(dir => {
-            const currentIndex = rotationMap.indexOf(dir);
-            const newIndex = (currentIndex + steps) % 4;
-            return rotationMap[newIndex];
+        const baseConnections = {
+            'I': ['N', 'S'],
+            'L': ['N', 'E'],
+            'T': ['N', 'E', 'W'],
+            '+': ['N', 'E', 'S', 'W']
+        };
+
+        const currentConnections = baseConnections[this.shape].map(dir => {
+            const dirIndex = dirs.indexOf(dir);
+            return dirs[(dirIndex + rotIndex) % 4];
         });
+
+        return currentConnections.includes(fromDir);
     }
 
     /**
-     * Apply this tile's operator to a value
-     * @param {number} value - Input value
-     * @returns {number} - Calculated output value
+     * Apply operator to a value
+     * @param {number} value 
+     * @returns {number}
      */
     applyOperator(value) {
         switch (this.operator) {
-            case 'ADD':
-                return value + this.operand;
-            case 'SUB':
-                return value - this.operand;
-            case 'MUL':
-                return value * this.operand;
-            case 'DIV':
-                return Math.floor(value / this.operand);
-            case 'MOD':
-                return value % this.operand;
-            case 'POW':
-                return Math.pow(value, this.operand);
-            case 'NEG':
-                return -value;
-            case 'NONE':
-            default:
-                return value;
+            case 'ADD': return value + this.operand;
+            case 'SUB': return value - this.operand;
+            case 'MUL': return value * this.operand;
+            case 'DIV': return Math.floor(value / this.operand);
+            case 'MOD': return value % this.operand;
+            case 'POW': return Math.pow(value, this.operand);
+            default: return value;
         }
     }
 
     /**
-     * Get a display string for the operator
-     * @returns {string}
+     * Get display string for operator
      */
     getOperatorDisplay() {
-        switch (this.operator) {
-            case 'ADD': return `+${this.operand}`;
-            case 'SUB': return `-${this.operand}`;
-            case 'MUL': return `×${this.operand}`;
-            case 'DIV': return `÷${this.operand}`;
-            case 'MOD': return `%${this.operand}`;
-            case 'POW': return `^${this.operand}`;
-            case 'NEG': return '±';
-            case 'NONE':
-            default: return '';
-        }
-    }
+        if (this.operator === 'NONE') return '';
 
-    /**
-     * Check if this tile can accept input from the given direction
-     * @param {string} fromDir - Direction signal is coming from
-     * @returns {boolean}
-     */
-    canAcceptFrom(fromDir) {
-        if (this.type !== TILE_TYPE.PIPE) {
-            return false;
-        }
+        const opSymbols = {
+            'ADD': '+',
+            'SUB': '-',
+            'MUL': '×',
+            'DIV': '÷',
+            'MOD': 'MOD',
+            'POW': '^'
+        };
 
-        const baseConnections = SHAPE_CONNECTIONS[this.shape] || [];
-        const rotatedConnections = this.rotateDirections(baseConnections, this.rotation);
-        const oppositeDir = OPPOSITE_DIR[fromDir];
-
-        return rotatedConnections.includes(oppositeDir);
+        return `${opSymbols[this.operator] || ''}${this.operand}`;
     }
 }

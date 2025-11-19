@@ -10,25 +10,17 @@ export class InputHandler {
     }
 
     setupEventListeners() {
-        this.canvas.addEventListener('click', (e) => this.handleClick(e));
-    }
+        this.canvas.addEventListener('click', (event) => {
+            const rect = this.canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
 
-    /**
-     * Handle canvas click
-     * @param {MouseEvent} e
-     */
-    handleClick(e) {
-        const rect = this.canvas.getBoundingClientRect();
-        const canvasX = e.clientX - rect.left;
-        const canvasY = e.clientY - rect.top;
+            const gridX = Math.floor(x / CELL_SIZE);
+            const gridY = Math.floor(y / CELL_SIZE);
 
-        // Convert to grid coordinates
-        const gridX = Math.floor(canvasX / CELL_SIZE);
-        const gridY = Math.floor(canvasY / CELL_SIZE);
-
-        // Check if valid grid position
-        if (this.grid.isInBounds(gridX, gridY)) {
-            this.onTileClick(gridX, gridY);
-        }
+            if (this.grid.isInBounds(gridX, gridY)) {
+                this.onTileClick(gridX, gridY);
+            }
+        });
     }
 }

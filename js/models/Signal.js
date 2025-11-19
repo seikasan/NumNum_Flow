@@ -1,55 +1,52 @@
 export class Signal {
-    constructor(x, y, value, fromDir) {
+    constructor(x, y, value, fromDir, history = null) {
         this.x = x;
         this.y = y;
         this.value = value;
-        this.fromDir = fromDir; // Direction this signal came from
-        this.pathHistory = new Set(); // For loop detection
+        this.fromDir = fromDir; // Direction entered FROM
+
+        // History of visited states to detect loops
+        // State key: "x,y,fromDir"
+        this.history = history ? new Set(history) : new Set();
     }
 
     /**
-     * Clone this signal (for branching)
-     * @returns {Signal}
+     * Create a copy of the signal
      */
     clone() {
-        const newSignal = new Signal(this.x, this.y, this.value, this.fromDir);
-        // Copy path history
-        newSignal.pathHistory = new Set(this.pathHistory);
-        return newSignal;
+        return new Signal(this.x, this.y, this.value, this.fromDir, this.history);
     }
 
     /**
-     * Get a unique key for current position and direction (for loop detection)
-     * @returns {string}
+     * Move signal to new position
+     * @param {number} x 
+     * @param {number} y 
+     * @param {string} fromDir - Direction entering FROM
      */
-    getStateKey() {
-        return `${this.x},${this.y},${this.fromDir}`;
-    }
-
-    /**
-     * Check if this state has been visited before (loop detection)
-     * @returns {boolean}
-     */
-    hasVisitedCurrentState() {
-        return this.pathHistory.has(this.getStateKey());
+    moveTo(x, y, fromDir) {
+        this.x = x;
+        this.y = y;
+        this.fromDir = fromDir;
     }
 
     /**
      * Record current state in history
      */
     recordCurrentState() {
-        this.pathHistory.add(this.getStateKey());
+        this.history.add(this.getCurrentStateKey());
     }
 
     /**
-     * Move signal to new position
-     * @param {number} newX
-     * @param {number} newY
-     * @param {string} newFromDir
+     * Check if current state has been visited
      */
-    moveTo(newX, newY, newFromDir) {
-        this.x = newX;
-        this.y = newY;
-        this.fromDir = newFromDir;
+    hasVisitedCurrentState() {
+        return this.history.has(this.getCurrentStateKey());
+    }
+
+    /**
+     * Generate unique key for current state
+     */
+    getCurrentStateKey() {
+        return `${this.x},${this.y},${this.fromDir}`;
     }
 }
