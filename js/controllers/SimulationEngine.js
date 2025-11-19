@@ -142,6 +142,15 @@ export class SimulationEngine {
                             };
                         }
 
+                        // Check if flowing back into INPUT
+                        if (nextTile.type === TILE_TYPE.INPUT) {
+                            return {
+                                status: 'fail',
+                                reason: `接続エラー: 座標(${newX}, ${newY})のINPUTには接続できません`,
+                                log: simulationLog
+                            };
+                        }
+
                         // Check if next tile can accept from this direction
                         const oppositeDir = OPPOSITE_DIR[dir];
                         if (nextTile.type === TILE_TYPE.PIPE && !nextTile.canAcceptFrom(oppositeDir)) {
