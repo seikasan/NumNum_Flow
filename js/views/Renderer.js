@@ -124,10 +124,127 @@ export class Renderer {
     }
 
     /**
-     * Draw INPUT marker
-     */
-    /**
      * Draw INPUT marker (Arrow pointing IN)
+     */
+    drawInput(x, y) {
+        const ctx = this.ctx;
+        const size = 20;
+
+        ctx.save();
+
+        // Determine edge and snap to border
+        let rotation = 0;
+        let drawX = x;
+        let drawY = y;
+
+        const gridW = this.stage.grid.width * CELL_SIZE;
+        const gridH = this.stage.grid.height * CELL_SIZE;
+
+        // Check original coordinates to determine edge
+        if (x < 0) { // Left
+            rotation = 0;
+            drawX = 0 - size; // Offset outside
+            drawY = y;
+        } else if (x >= gridW) { // Right
+            rotation = 180;
+            drawX = gridW + size;
+            drawY = y;
+        } else if (y < 0) { // Top
+            rotation = 90;
+            drawX = x;
+            drawY = 0 - size;
+        } else if (y >= gridH) { // Bottom
+            rotation = 270;
+            drawX = x;
+            drawY = gridH + size;
+        }
+
+        ctx.translate(drawX, drawY);
+        ctx.rotate((rotation * Math.PI) / 180);
+
+        // Draw Arrow
+        ctx.fillStyle = COLORS.INPUT;
+        ctx.beginPath();
+        const halfSize = size / 2;
+        ctx.moveTo(-halfSize, -halfSize / 2);
+        ctx.lineTo(halfSize, -halfSize / 2);
+        ctx.lineTo(halfSize, -size / 2);
+        ctx.lineTo(size, 0);
+        ctx.lineTo(halfSize, size / 2);
+        ctx.lineTo(halfSize, halfSize / 2);
+        ctx.lineTo(-halfSize, halfSize / 2);
+        ctx.closePath();
+        ctx.fill();
+
+        // Text
+        ctx.rotate(-(rotation * Math.PI) / 180);
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('IN', 0, 0);
+
+        ctx.restore();
+    }
+
+    /**
+     * Draw OUTPUT marker (Arrow pointing OUT)
+     */
+    drawOutput(x, y) {
+        const ctx = this.ctx;
+        const size = 20;
+
+        ctx.save();
+
+        // Determine edge and snap
+        let rotation = 0;
+        let drawX = x;
+        let drawY = y;
+
+        const gridW = this.stage.grid.width * CELL_SIZE;
+        const gridH = this.stage.grid.height * CELL_SIZE;
+
+        if (x < 0) { // Left
+            rotation = 180;
+            drawX = 0 - size;
+            drawY = y;
+        } else if (x >= gridW) { // Right
+            rotation = 0;
+            drawX = gridW + size;
+            drawY = y;
+        } else if (y < 0) { // Top
+            rotation = 270;
+            drawX = x;
+            drawY = 0 - size;
+        } else if (y >= gridH) { // Bottom
+            rotation = 90;
+            drawX = x;
+            drawY = gridH + size;
+        }
+
+        ctx.translate(drawX, drawY);
+        ctx.rotate((rotation * Math.PI) / 180);
+
+        // Draw Receptor shape
+        ctx.strokeStyle = COLORS.OUTPUT;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+
+        const halfSize = size / 2;
+        ctx.moveTo(-halfSize, -halfSize);
+        ctx.lineTo(0, -halfSize);
+        ctx.lineTo(0, halfSize);
+        ctx.lineTo(-halfSize, halfSize);
+
+        ctx.moveTo(-size, 0);
+        ctx.lineTo(0, 0);
+
+        ctx.stroke();
+
+        // Text
+        ctx.rotate(-(rotation * Math.PI) / 180);
+        ctx.fillStyle = COLORS.OUTPUT;
+        ctx.font = 'bold 10px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('OUT', 0, 0);
