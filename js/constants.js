@@ -4,9 +4,7 @@ export const MAX_SIMULATION_STEPS = 100;
 
 export const TILE_TYPE = {
   EMPTY: 'empty',
-  PIPE: 'pipe',
-  INPUT: 'input',
-  OUTPUT: 'output'
+  PIPE: 'pipe'
 };
 
 export const GAME_STATE = {

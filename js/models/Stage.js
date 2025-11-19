@@ -17,21 +17,7 @@ export class Stage {
      * Initialize grid from data
      */
     initializeGrid() {
-        // Place inputs
-        this.inputs.forEach(input => {
-            this.grid.setTile(input.pos.x, input.pos.y, new Tile({
-                type: TILE_TYPE.INPUT,
-                fixed: true
-            }));
-        });
-
-        // Place outputs
-        this.outputs.forEach(output => {
-            this.grid.setTile(output.pos.x, output.pos.y, new Tile({
-                type: TILE_TYPE.OUTPUT,
-                fixed: true
-            }));
-        });
+        // Inputs and Outputs are now external, not tiles on the grid.
 
         // Place pipe tiles
         this.data.tiles.forEach(tileData => {

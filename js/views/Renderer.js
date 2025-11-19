@@ -15,8 +15,9 @@ export class Renderer {
      */
     setStage(stage) {
         this.stage = stage;
-        this.canvas.width = stage.grid.width * CELL_SIZE;
-        this.canvas.height = stage.grid.height * CELL_SIZE;
+        // Add padding (1 cell size) around the grid
+        this.canvas.width = (stage.grid.width + 2) * CELL_SIZE;
+        this.canvas.height = (stage.grid.height + 2) * CELL_SIZE;
     }
 
     /**
@@ -24,8 +25,15 @@ export class Renderer {
      */
     drawStatic() {
         this.clear();
+
+        this.ctx.save();
+        this.ctx.translate(CELL_SIZE, CELL_SIZE);
+
         this.drawGrid();
         this.drawTiles();
+        this.drawIO();
+
+        this.ctx.restore();
     }
 
     /**
@@ -74,6 +82,25 @@ export class Renderer {
     }
 
     /**
+     * Draw external Inputs and Outputs
+     */
+    drawIO() {
+        // Draw Inputs
+        this.stage.inputs.forEach(input => {
+            const x = input.pos.x * CELL_SIZE + CELL_SIZE / 2;
+            const y = input.pos.y * CELL_SIZE + CELL_SIZE / 2;
+            this.drawInput(x, y);
+        });
+
+        // Draw Outputs
+        this.stage.outputs.forEach(output => {
+            const x = output.pos.x * CELL_SIZE + CELL_SIZE / 2;
+            const y = output.pos.y * CELL_SIZE + CELL_SIZE / 2;
+            this.drawOutput(x, y);
+        });
+    }
+
+    /**
      * Draw a single tile
      * @param {number} x - Grid x
      * @param {number} y - Grid y
@@ -90,11 +117,8 @@ export class Renderer {
         }
 
         // Draw based on type
-        if (tile.type === TILE_TYPE.INPUT) {
-            this.drawInput(centerX, centerY);
-        } else if (tile.type === TILE_TYPE.OUTPUT) {
-            this.drawOutput(centerX, centerY);
-        } else if (tile.type === TILE_TYPE.PIPE) {
+        // Draw based on type
+        if (tile.type === TILE_TYPE.PIPE) {
             this.drawPipe(centerX, centerY, tile);
         }
     }
@@ -102,34 +126,111 @@ export class Renderer {
     /**
      * Draw INPUT marker
      */
+    /**
+     * Draw INPUT marker (Arrow pointing IN)
+     */
     drawInput(x, y) {
-        this.ctx.fillStyle = COLORS.INPUT;
-        this.ctx.beginPath();
-        this.ctx.arc(x, y, 15, 0, Math.PI * 2);
-        this.ctx.fill();
+        const ctx = this.ctx;
+        const size = 20;
 
-        this.ctx.fillStyle = '#000';
-        this.ctx.font = 'bold 12px Arial';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.fillText('IN', x, y);
+        ctx.save();
+        ctx.translate(x, y);
+
+        // Determine rotation based on position relative to grid center
+        // This is a simple heuristic; for more complex layouts we might need explicit direction
+        // But usually inputs are on the edge.
+        // For now, let's assume inputs are always on the left/top/right/bottom edge and point inwards.
+        // Actually, let's just draw a generic "Input" marker for now that looks distinct.
+        // Or better, calculate direction based on grid bounds.
+
+        // Let's find which edge it is on
+        let rotation = 0;
+        const gridW = this.stage.grid.width * CELL_SIZE;
+        const gridH = this.stage.grid.height * CELL_SIZE;
+
+        // Coordinates are relative to grid top-left (0,0)
+        // x, y are center coordinates of the tile
+
+        if (x < 0) rotation = 0; // Left edge, pointing Right (0)
+        else if (x >= gridW) rotation = 180; // Right edge, pointing Left
+        else if (y < 0) rotation = 90; // Top edge, pointing Down
+        else if (y >= gridH) rotation = 270; // Bottom edge, pointing Up
+
+        ctx.rotate((rotation * Math.PI) / 180);
+
+        // Draw Arrow
+        ctx.fillStyle = COLORS.INPUT;
+        ctx.beginPath();
+        ctx.moveTo(-size, -size / 2);
+        ctx.lineTo(0, -size / 2);
+        ctx.lineTo(0, -size);
+        ctx.lineTo(size, 0);
+        ctx.lineTo(0, size);
+        ctx.lineTo(0, size / 2);
+        ctx.lineTo(-size, size / 2);
+        ctx.closePath();
+        ctx.fill();
+
+        // Text
+        ctx.rotate(-(rotation * Math.PI) / 180); // Reset rotation for text
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('IN', 0, 0);
+
+        ctx.restore();
     }
 
     /**
      * Draw OUTPUT marker
      */
+    /**
+     * Draw OUTPUT marker (Arrow pointing OUT)
+     */
     drawOutput(x, y) {
-        this.ctx.strokeStyle = COLORS.OUTPUT;
-        this.ctx.lineWidth = 3;
-        this.ctx.beginPath();
-        this.ctx.arc(x, y, 15, 0, Math.PI * 2);
-        this.ctx.stroke();
+        const ctx = this.ctx;
+        const size = 20;
 
-        this.ctx.fillStyle = COLORS.OUTPUT;
-        this.ctx.font = 'bold 10px Arial';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.fillText('OUT', x, y);
+        ctx.save();
+        ctx.translate(x, y);
+
+        // Determine rotation
+        let rotation = 0;
+        const gridW = this.stage.grid.width * CELL_SIZE;
+        const gridH = this.stage.grid.height * CELL_SIZE;
+
+        if (x < 0) rotation = 180; // Left edge, pointing Left
+        else if (x >= gridW) rotation = 0; // Right edge, pointing Right
+        else if (y < 0) rotation = 270; // Top edge, pointing Up
+        else if (y >= gridH) rotation = 90; // Bottom edge, pointing Down
+
+        ctx.rotate((rotation * Math.PI) / 180);
+
+        // Draw Receptor shape
+        ctx.strokeStyle = COLORS.OUTPUT;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        // Cup shape
+        ctx.moveTo(-size / 2, -size / 2);
+        ctx.lineTo(0, -size / 2);
+        ctx.lineTo(0, size / 2);
+        ctx.lineTo(-size / 2, size / 2);
+        // Arrow head receiving
+        ctx.moveTo(-size, 0);
+        ctx.lineTo(0, 0);
+
+        ctx.stroke();
+
+        // Text
+        ctx.rotate(-(rotation * Math.PI) / 180);
+        ctx.fillStyle = COLORS.OUTPUT;
+        ctx.font = 'bold 10px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('OUT', 0, 0);
+
+        ctx.restore();
     }
 
     /**
@@ -223,10 +324,15 @@ export class Renderer {
                 const stepData = log[stepIndex];
                 this.drawStatic();
 
+                this.ctx.save();
+                this.ctx.translate(CELL_SIZE, CELL_SIZE);
+
                 // Draw signals for this step
                 stepData.signals.forEach(signal => {
                     this.drawSignal(signal);
                 });
+
+                this.ctx.restore();
 
                 stepIndex++;
                 setTimeout(animateStep, ANIMATION_SPEED);
