@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NumNum Flow - パイプ演算パズル</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="game-container">
+    <header class="game-header">
+      <h1>NumNum Flow</h1>
+      <div class="stage-info">
+        <span id="stage-name">Stage 1</span>
+      </div>
+    </header>
+
+    <div class="game-main">
+      <div class="canvas-wrapper">
+        <canvas id="game-canvas"></canvas>
+        <div id="result-overlay" class="result-overlay hidden">
+          <div class="result-content">
+            <h2 id="result-title"></h2>
+            <p id="result-message"></p>
+            <button id="continue-btn" class="btn btn-primary">Continue</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="info-panel">
+          <div class="info-item">
+            <span class="label">INPUT:</span>
+            <span id="input-value">-</span>
+          </div>
+          <div class="info-item">
+            <span class="label">TARGET:</span>
+            <span id="target-values">-</span>
+          </div>
+        </div>
+        <div class="button-group">
+          <button id="run-btn" class="btn btn-success">▶ 実行</button>
+          <button id="reset-btn" class="btn btn-secondary">↻ リセット</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Module Scripts -->
+  <script type="module" src="js/constants.js"></script>
+  <script type="module" src="js/models/Tile.js"></script>
+  <script type="module" src="js/models/Grid.js"></script>
+  <script type="module" src="js/models/Signal.js"></script>
+  <script type="module" src="js/models/Stage.js"></script>
+  <script type="module" src="js/controllers/InputHandler.js"></script>
+  <script type="module" src="js/controllers/SimulationEngine.js"></script>
+  <script type="module" src="js/controllers/GameManager.js"></script>
+  <script type="module" src="js/views/Renderer.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

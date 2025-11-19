@@ -1,0 +1,76 @@
+{
+  "stage001": {
+    "name": "Tutorial: 基本の演算",
+    "gridSize": { "width": 5, "height": 5 },
+    "inputs": [
+      { "pos": { "x": 0, "y": 2 }, "value": 10 }
+    ],
+    "outputs": [
+      { "pos": { "x": 4, "y": 2 }, "targetValue": 4 }
+    ],
+    "tiles": [
+      { "pos": { "x": 1, "y": 2 }, "shape": "I", "operator": "SUB", "operand": 3, "rotation": 90, "fixed": false },
+      { "pos": { "x": 2, "y": 2 }, "shape": "I", "operator": "DIV", "operand": 2, "rotation": 90, "fixed": false },
+      { "pos": { "x": 3, "y": 2 }, "shape": "I", "operator": "ADD", "operand": 1, "rotation": 90, "fixed": false }
+    ]
+  },
+  "stage002": {
+    "name": "Stage 2: MODを使おう",
+    "gridSize": { "width": 6, "height": 5 },
+    "inputs": [
+      { "pos": { "x": 0, "y": 2 }, "value": 17 }
+    ],
+    "outputs": [
+      { "pos": { "x": 5, "y": 2 }, "targetValue": 3 }
+    ],
+    "tiles": [
+      { "pos": { "x": 1, "y": 2 }, "shape": "I", "operator": "ADD", "operand": 4, "rotation": 90, "fixed": false },
+      { "pos": { "x": 2, "y": 2 }, "shape": "I", "operator": "MOD", "operand": 7, "rotation": 90, "fixed": false },
+      { "pos": { "x": 3, "y": 2 }, "shape": "I", "operator": "MUL", "operand": 2, "rotation": 90, "fixed": false },
+      { "pos": { "x": 4, "y": 2 }, "shape": "I", "operator": "SUB", "operand": 3, "rotation": 90, "fixed": false }
+    ]
+  },
+  "stage003": {
+    "name": "Stage 3: 分岐の力",
+    "gridSize": { "width": 7, "height": 7 },
+    "inputs": [
+      { "pos": { "x": 3, "y": 0 }, "value": 8 }
+    ],
+    "outputs": [
+      { "pos": { "x": 6, "y": 3 }, "targetValue": 16 },
+      { "pos": { "x": 0, "y": 3 }, "targetValue": 4 }
+    ],
+    "tiles": [
+      { "pos": { "x": 3, "y": 1 }, "shape": "I", "operator": "NONE", "operand": 0, "rotation": 0, "fixed": false },
+      { "pos": { "x": 3, "y": 2 }, "shape": "I", "operator": "NONE", "operand": 0, "rotation": 0, "fixed": false },
+      { "pos": { "x": 3, "y": 3 }, "shape": "T", "operator": "NONE", "operand": 0, "rotation": 0, "fixed": true },
+      { "pos": { "x": 4, "y": 3 }, "shape": "I", "operator": "MUL", "operand": 2, "rotation": 90, "fixed": false },
+      { "pos": { "x": 5, "y": 3 }, "shape": "I", "operator": "NONE", "operand": 0, "rotation": 90, "fixed": false },
+      { "pos": { "x": 2, "y": 3 }, "shape": "I", "operator": "DIV", "operand": 2, "rotation": 90, "fixed": false },
+      { "pos": { "x": 1, "y": 3 }, "shape": "I", "operator": "NONE", "operand": 0, "rotation": 90, "fixed": false }
+    ]
+  },
+  "stage004": {
+    "name": "Stage 4: 複雑な回路",
+    "gridSize": { "width": 7, "height": 7 },
+    "inputs": [
+      { "pos": { "x": 0, "y": 0 }, "value": 5 }
+    ],
+    "outputs": [
+      { "pos": { "x": 6, "y": 6 }, "targetValue": 7 }
+    ],
+    "tiles": [
+      { "pos": { "x": 1, "y": 0 }, "shape": "I", "operator": "MUL", "operand": 3, "rotation": 90, "fixed": false },
+      { "pos": { "x": 2, "y": 0 }, "shape": "L", "operator": "NONE", "operand": 0, "rotation": 90, "fixed": false },
+      { "pos": { "x": 2, "y": 1 }, "shape": "I", "operator": "ADD", "operand": 2, "rotation": 0, "fixed": false },
+      { "pos": { "x": 2, "y": 2 }, "shape": "L", "operator": "NONE", "operand": 0, "rotation": 0, "fixed": false },
+      { "pos": { "x": 3, "y": 2 }, "shape": "I", "operator": "MOD", "operand": 10, "rotation": 90, "fixed": false },
+      { "pos": { "x": 4, "y": 2 }, "shape": "L", "operator": "NONE", "operand": 0, "rotation": 90, "fixed": false },
+      { "pos": { "x": 4, "y": 3 }, "shape": "I", "operator": "SUB", "operand": 3, "rotation": 0, "fixed": false },
+      { "pos": { "x": 4, "y": 4 }, "shape": "L", "operator": "NONE", "operand": 0, "rotation": 0, "fixed": false },
+      { "pos": { "x": 5, "y": 4 }, "shape": "I", "operator": "ADD", "operand": 3, "rotation": 90, "fixed": false },
+      { "pos": { "x": 6, "y": 4 }, "shape": "L", "operator": "NONE", "operand": 0, "rotation": 90, "fixed": false },
+      { "pos": { "x": 6, "y": 5 }, "shape": "I", "operator": "NONE", "operand": 0, "rotation": 0, "fixed": false }
+    ]
+  }
+}
