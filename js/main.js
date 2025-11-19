@@ -55,46 +55,51 @@ function initStageSelect() {
 
 // Start Game with specific stage
 function startGame(stageId) {
-    if (!allStages[stageId]) return;
+    try {
+        if (!allStages[stageId]) return;
 
-    currentStageId = stageId;
-    const stageData = allStages[stageId];
-    const stage = new Stage(stageData);
+        currentStageId = stageId;
+        const stageData = allStages[stageId];
+        const stage = new Stage(stageData);
 
-    if (!gameManager) {
-        // First time initialization
-        const canvas = document.getElementById('game-canvas');
-        renderer = new Renderer(canvas, stage);
+        if (!gameManager) {
+            // First time initialization
+            const canvas = document.getElementById('game-canvas');
+            renderer = new Renderer(canvas, stage);
 
-        gameManager = new GameManager(stage, renderer, () => {
-            // On Next Stage
-            const stageIds = Object.keys(allStages);
-            const currentIndex = stageIds.indexOf(currentStageId);
-            if (currentIndex < stageIds.length - 1) {
-                startGame(stageIds[currentIndex + 1]);
-            } else {
-                alert('All stages cleared! Congratulations!');
-                showScreen(SCREENS.SELECT);
-            }
-        });
+            gameManager = new GameManager(stage, renderer, () => {
+                // On Next Stage
+                const stageIds = Object.keys(allStages);
+                const currentIndex = stageIds.indexOf(currentStageId);
+                if (currentIndex < stageIds.length - 1) {
+                    startGame(stageIds[currentIndex + 1]);
+                } else {
+                    alert('All stages cleared! Congratulations!');
+                    showScreen(SCREENS.SELECT);
+                }
+            });
 
-        inputHandler = new InputHandler(
-            canvas,
-            stage.grid,
-            (x, y) => gameManager.onTileClick(x, y)
-        );
-    } else {
-        // Update existing instances
-        renderer.setStage(stage);
-        gameManager.setStage(stage);
-        inputHandler.setGrid(stage.grid);
+            inputHandler = new InputHandler(
+                canvas,
+                stage.grid,
+                (x, y) => gameManager.onTileClick(x, y)
+            );
+        } else {
+            // Update existing instances
+            renderer.setStage(stage);
+            gameManager.setStage(stage);
+            inputHandler.setGrid(stage.grid);
+        }
+
+        // Initial draw and UI update
+        renderer.drawStatic();
+        gameManager.updateStageInfo();
+
+        showScreen(SCREENS.GAME);
+    } catch (error) {
+        console.error('Error starting game:', error);
+        alert('Error starting game: ' + error.message);
     }
-
-    // Initial draw and UI update
-    renderer.drawStatic();
-    gameManager.updateStageInfo();
-
-    showScreen(SCREENS.GAME);
 }
 
 // Initialize game
